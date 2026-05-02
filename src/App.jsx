@@ -28,21 +28,17 @@ function App() {
   const { canPlaceOrder, recordOrder } = useRateLimiter('namma_taste_orders_timestamps', 5, 30 * 60 * 1000);
 
   const orderForm = useFormValidation(
-    { name: '', phone: '', address: '', items: '', eventType: '', eventTypeOther: '', eventDate: '' },
+    { name: '', phone: '', address: '', eventType: '', eventTypeOther: '', eventDate: new Date(), items: '' },
     {
       name: v => !v.trim() ? 'Name is required' : null,
       phone: v => !/^\d{10}$/.test(v) ? 'Must be 10 digits' : null,
-      address: v => !v.trim() ? 'Delivery address required' : null,
+      address: v => !v.trim() ? 'Event address required' : null,
       eventType: v => !v ? 'Please select an event type' : null,
       eventTypeOther: (v, all) =>
         all.eventType === 'Other (please specify)' && (!v.trim() || v.length < 25 || /\s/.test(v))
           ? 'Minimum 25 characters, no spaces' : null,
-      eventDate: v => {
-        if (!v) return 'Event date required';
-        if (v < getTodayDate()) return 'Cannot select past date';
-        if (v > getMaxDate()) return `Date cannot exceed ${getMaxDate()}`;
-        return null;
-      },
+      eventDate: v => !v ? 'Event date required' : null,
+      items: v => !v.trim() ? 'Please specify items of interest' : null,
     }
   );
 
@@ -64,35 +60,48 @@ function App() {
     setTimeout(() => setNotification({ show: false, message: '', type: '' }), 4000);
   }, []);
 
+  const openInquiry = (item = null) => {
+    if (item) {
+      orderForm.setValues(prev => ({ ...prev, items: item.name }));
+    }
+    setShowOrderModal(true);
+  };
+
   const handleOrderSubmit = async (e) => {
     e.preventDefault();
     if (!orderForm.validate()) return;
+    
     const rateCheck = canPlaceOrder();
     if (!rateCheck.allowed) {
-      showNotification(`Order limit reached. Wait ${rateCheck.waitMinutes} min.`, 'error');
+      showNotification(`Inquiry limit reached. Wait ${rateCheck.waitMinutes} min.`, 'error');
       return;
     }
     setOrderSubmitting(true);
     try {
       const finalEventType = orderForm.values.eventType === 'Other (please specify)'
         ? orderForm.values.eventTypeOther.trim() : orderForm.values.eventType;
+        
+      const orderMessage = `
+Booking Inquiry details: ${JSON.stringify(orderForm.values, null, 2)}
+`;
+
       const res = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          access_key: WEB3FORMS_ACCESS_KEY, subject: '🛵 New Order', ...orderForm.values,
-          eventType: finalEventType, message: `Order: ${JSON.stringify(orderForm.values)}`,
+          access_key: WEB3FORMS_ACCESS_KEY, subject: '📅 New Booking Inquiry', ...orderForm.values,
+          eventType: finalEventType, message: orderMessage,
         }),
       });
       const data = await res.json();
       if (data.success) {
         recordOrder();
-        showNotification('Order placed! We will contact you soon.');
+        showNotification('Inquiry sent successfully! We will contact you soon.');
         orderForm.reset();
         setShowOrderModal(false);
       } else throw new Error();
     } catch {
-      showNotification('Order failed. Try again.', 'error');
+      showNotification('Inquiry failed. Try again.', 'error');
     } finally {
       setOrderSubmitting(false);
     }
@@ -142,19 +151,26 @@ function App() {
         {notification.show && <Notification message={notification.message} type={notification.type} />}
       </AnimatePresence>
 
-      <OrderModal isOpen={showOrderModal} onClose={() => setShowOrderModal(false)} onSubmit={handleOrderSubmit} formData={orderForm} errors={orderForm.errors} isSubmitting={orderSubmitting} />
+      <OrderModal 
+        isOpen={showOrderModal} 
+        onClose={() => setShowOrderModal(false)} 
+        onSubmit={handleOrderSubmit} 
+        formData={orderForm} 
+        errors={orderForm.errors} 
+        isSubmitting={orderSubmitting} 
+      />
 
-      <Header mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} setShowOrderModal={setShowOrderModal} />
+      <Header mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} openInquiry={openInquiry} />
 
       <Hero />
 
-      <Features selectedCategory={selectedCategory} handleCategoryClick={handleCategoryClick} setShowOrderModal={setShowOrderModal} setSelectedCategory={setSelectedCategory} />
+      <Features selectedCategory={selectedCategory} handleCategoryClick={handleCategoryClick} setSelectedCategory={setSelectedCategory} />
 
       <Testimonials />
 
       <ContactForm contactForm={contactForm} contactSubmitting={contactSubmitting} handleContactSubmit={handleContactSubmit} />
 
-      <Footer />
+      <Footer openInquiry={openInquiry} />
     </div>
   );
 }

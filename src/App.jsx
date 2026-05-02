@@ -6,7 +6,7 @@ import { useRateLimiter, useFormValidation } from './utils/hooks';
 import { getTodayDate, getMaxDate, WEB3FORMS_ACCESS_KEY } from './utils/helpers';
 
 // Components
-import PasswordLock from './components/PasswordLock';
+import AccessPage from './components/AccessPage';
 import Notification from './components/Notification';
 import Header from './components/Header';
 import Hero from './components/Hero';
@@ -15,10 +15,10 @@ import Testimonials from './components/Testimonials';
 import { ContactForm, OrderModal } from './components/Forms';
 import Footer from './components/Footer';
 
+const ENABLE_LOCK = true;
+
 function App() {
-  const [isUnlocked, setIsUnlocked] = useState(true);
-  const [passwordInput, setPasswordInput] = useState('');
-  const [passwordError, setPasswordError] = useState('');
+  const [isUnlocked, setIsUnlocked] = useState(!ENABLE_LOCK || localStorage.getItem('namma_taste_unlocked') === 'true');
 
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -135,14 +135,13 @@ Booking Inquiry details: ${JSON.stringify(orderForm.values, null, 2)}
     setTimeout(() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' }), 100);
   };
 
-  const handlePasswordSubmit = (e) => {
-    e.preventDefault(); 
-    if (passwordInput === 'oombu') setIsUnlocked(true); 
-    else setPasswordError('Incorrect password'); 
+  const handleUnlock = () => {
+    setIsUnlocked(true);
+    localStorage.setItem('namma_taste_unlocked', 'true');
   };
 
   if (!isUnlocked) {
-    return <PasswordLock passwordInput={passwordInput} setPasswordInput={setPasswordInput} passwordError={passwordError} onSubmit={handlePasswordSubmit} />;
+    return <AccessPage onUnlock={handleUnlock} />;
   }
 
   return (

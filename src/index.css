@@ -9,7 +9,7 @@
     scroll-behavior: smooth;
   }
   body {
-    background-color: #050505; /* Deep, rich near-black */
+    background-color: #0f0f0f; /* Deep Black Design System */
     color: #ffffff;
     font-family: 'Inter', sans-serif;
   }
@@ -46,7 +46,7 @@
     width: 8px;
   }
   ::-webkit-scrollbar-track {
-    background: #050505; 
+    background: #0f0f0f; 
   }
   ::-webkit-scrollbar-thumb {
     background: #333; 

@@ -2,11 +2,12 @@ import React, { useState, useCallback } from 'react';
 import { AnimatePresence } from 'framer-motion';
 
 // Hooks & Helpers
-import { useRateLimiter, useFormValidation } from './utils/hooks';
+import { useAdvancedRateLimiter, useFormValidation } from './utils/hooks';
 import { getTodayDate, getMaxDate, WEB3FORMS_ACCESS_KEY } from './utils/helpers';
 
 // Components
 import AccessPage from './components/AccessPage';
+import RateLimitError from './components/RateLimitError';
 import Notification from './components/Notification';
 import Header from './components/Header';
 import Hero from './components/Hero';
@@ -25,7 +26,7 @@ function App() {
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [notification, setNotification] = useState({ show: false, message: '', type: '' });
 
-  const { canPlaceOrder, recordOrder } = useRateLimiter('namma_taste_orders_timestamps', 5, 30 * 60 * 1000);
+  const { isCooldown, cooldownTimeLeft, recordClick } = useAdvancedRateLimiter('namma_taste_booking_clicks');
 
   const orderForm = useFormValidation(
     { name: '', phone: '', address: '', eventType: '', eventTypeOther: '', eventDate: new Date(), items: '' },
@@ -71,9 +72,13 @@ function App() {
     e.preventDefault();
     if (!orderForm.validate()) return;
     
-    const rateCheck = canPlaceOrder();
+    const rateCheck = recordClick();
     if (!rateCheck.allowed) {
-      showNotification(`Inquiry limit reached. Wait ${rateCheck.waitMinutes} min.`, 'error');
+      if (rateCheck.triggeredCooldown) {
+        showNotification('Unusual activity detected. Cooldown initiated.', 'error');
+      } else {
+        showNotification('Rate limit active. Please wait.', 'error');
+      }
       return;
     }
     setOrderSubmitting(true);
@@ -95,7 +100,6 @@ Booking Inquiry details: ${JSON.stringify(orderForm.values, null, 2)}
       });
       const data = await res.json();
       if (data.success) {
-        recordOrder();
         showNotification('Inquiry sent successfully! We will contact you soon.');
         orderForm.reset();
         setShowOrderModal(false);
@@ -145,9 +149,13 @@ Booking Inquiry details: ${JSON.stringify(orderForm.values, null, 2)}
   }
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white selection:bg-amber-500/30 selection:text-amber-200">
+    <div className="min-h-screen bg-[#0f0f0f] text-white selection:bg-amber-500/30 selection:text-amber-200">
       <AnimatePresence>
         {notification.show && <Notification message={notification.message} type={notification.type} />}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isCooldown && <RateLimitError timeLeft={cooldownTimeLeft} />}
       </AnimatePresence>
 
       <OrderModal 
@@ -157,6 +165,8 @@ Booking Inquiry details: ${JSON.stringify(orderForm.values, null, 2)}
         formData={orderForm} 
         errors={orderForm.errors} 
         isSubmitting={orderSubmitting} 
+        isCooldown={isCooldown}
+        cooldownTimeLeft={cooldownTimeLeft}
       />
 
       <Header mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} openInquiry={openInquiry} />

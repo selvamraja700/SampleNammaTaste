@@ -1,48 +1,111 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect, useRef } from 'react';
+import gsap from 'gsap';
 
 const Hero = () => {
+  const title1Ref = useRef(null);
+  const taglineRef = useRef(null);
+  const descRef = useRef(null);
+  const buttonsRef = useRef(null);
+  const animationRef = useRef(null);
+
+  useEffect(() => {
+    // GSAP Timeline for orchestrating the staggered sequence
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+    // Bring in the animation smoothly
+    tl.fromTo(animationRef.current,
+      { scale: 0.9, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 1.2, ease: "power2.out" }
+    )
+    // 1. Text reveals in sequence
+    .fromTo(title1Ref.current,
+      { y: 40, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.8 },
+      "-=0.6"
+    )
+    .fromTo(taglineRef.current,
+      { y: 20, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.8 },
+      "-=0.6"
+    )
+    .fromTo(descRef.current,
+      { y: 20, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.8 },
+      "-=0.6"
+    )
+    .fromTo(buttonsRef.current,
+      { y: 20, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.8 },
+      "-=0.6"
+    );
+
+  }, []);
+
   return (
-    <section id="home" className="relative min-h-[90vh] md:min-h-[85vh] flex items-center pt-20 md:pt-10 pb-16 md:pb-20 overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-900/20 via-[#050505] to-[#050505]">
-      <div className="absolute top-1/4 left-1/4 w-64 h-64 md:w-96 md:h-96 bg-amber-500/20 rounded-full blur-[100px] md:blur-[120px] pointer-events-none"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 md:w-[30rem] md:h-[30rem] bg-orange-600/10 rounded-full blur-[120px] md:blur-[150px] pointer-events-none"></div>
+    <section id="home" className="relative min-h-[100vh] md:min-h-[90vh] flex items-center pt-24 lg:pt-32 pb-16 lg:pb-20 overflow-hidden bg-[#0f0f0f]">
+      {/* Ambient background glows for premium feel */}
+      <div className="absolute top-1/4 left-1/4 w-64 md:w-96 h-64 md:h-96 bg-amber-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-80 md:w-[30rem] h-80 md:h-[30rem] bg-orange-600/5 rounded-full blur-[150px] pointer-events-none"></div>
       
-      <div className="container mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
-        <div className="flex flex-col lg:flex-row items-center gap-10 md:gap-12 lg:gap-20">
-          <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} className="flex-1 text-center lg:text-left w-full">
-            <span className="inline-block py-1.5 px-4 rounded-full glass-panel text-amber-400 text-xs md:text-sm font-semibold mb-6 md:mb-8 border-amber-400/30">
-              100% Authentic Taste
-            </span>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-extrabold leading-tight mb-4 md:mb-6">
-              Taste That <br className="hidden sm:block"/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500 drop-shadow-[0_0_30px_rgba(251,191,36,0.3)]">Truly Hits</span>
-            </h1>
-            <p className="text-gray-400 text-base md:text-lg lg:text-xl mb-8 md:mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-              Experience the finest street food with a modern twist. From classic crispy pani puri to loaded cheese momos, we serve happiness in every bite.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <a href="#categories" className="btn-primary text-center min-h-[56px] px-8 text-base md:text-lg flex items-center justify-center">Explore Menu</a>
-              <a href="#contact" className="btn-outline text-center min-h-[56px] px-8 text-base md:text-lg flex items-center justify-center">Contact Us</a>
-            </div>
-          </motion.div>
+      <div className="w-full max-w-7xl mx-auto px-5 relative z-10">
+        <div className="grid grid-cols-2 lg:grid-cols-2 gap-x-0 gap-y-12 lg:gap-x-12 w-full items-center">
           
-          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, delay: 0.2 }} className="flex-1 relative w-full mt-8 md:mt-0">
-            <div className="relative w-full max-w-[280px] sm:max-w-sm md:max-w-lg mx-auto aspect-square">
-              <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/20 to-orange-500/20 rounded-full blur-2xl md:blur-3xl pointer-events-none"></div>
-              <img src="https://images.unsplash.com/photo-1583394293214-28ded15ee548?w=800" alt="Delicious Food" className="relative z-10 w-full h-full object-cover rounded-[2rem] md:rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 pointer-events-none select-none block" />
+          {/* LEFT SIDE - DotLottie Animation */}
+          <div className="col-span-1 lg:row-span-2 flex items-center justify-start lg:justify-center relative z-10">
+            <div ref={animationRef} className="w-[180px] sm:w-[240px] lg:w-[420px] xl:w-[450px] aspect-square flex items-center justify-center relative scale-[1.7] sm:scale-150 lg:scale-100 origin-left lg:origin-center -ml-2 lg:ml-0 pointer-events-none">
+              {/* Background glow to emphasize animation */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 to-orange-600/10 rounded-full blur-[80px] pointer-events-none"></div>
               
-              {/* Floating Stat Card */}
-              <motion.div animate={{ y: [0, -15, 0] }} transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }} className="absolute -left-4 md:-left-6 top-1/4 glass-panel p-3 md:p-4 rounded-2xl z-20 pointer-events-none">
-                <div className="text-amber-400 text-xl md:text-2xl font-bold">4.9★</div>
-                <div className="text-[10px] md:text-xs text-gray-300 font-medium">Customer Rating</div>
-              </motion.div>
-              
-              <motion.div animate={{ y: [0, 15, 0] }} transition={{ repeat: Infinity, duration: 5, ease: "easeInOut", delay: 1 }} className="absolute -right-4 md:-right-6 bottom-1/4 glass-panel p-3 md:p-4 rounded-2xl z-20 pointer-events-none">
-                <div className="text-orange-400 text-xl md:text-2xl font-bold">30m</div>
-                <div className="text-[10px] md:text-xs text-gray-300 font-medium">Fast Delivery</div>
-              </motion.div>
+              <dotlottie-wc 
+                src="https://lottie.host/16ebb563-ef88-4525-b546-4864887f110b/Q0UZoEEvp3.lottie" 
+                autoplay 
+                style={{ width: '100%', height: '100%', position: 'relative', zIndex: 10 }}
+              ></dotlottie-wc>
             </div>
-          </motion.div>
+          </div>
+
+          {/* RIGHT SIDE TOP - Headings */}
+          <div className="col-span-1 lg:row-span-1 flex flex-col justify-center items-start text-left z-20 mt-6 lg:mt-0 relative">
+            <h1 className="text-[2.5rem] sm:text-5xl md:text-6xl lg:text-7xl font-heading font-extrabold leading-[1.05] mb-3 tracking-tight w-full drop-shadow-md">
+              <div className="overflow-hidden pb-1">
+                <div ref={title1Ref} className="text-white">Namma Taste</div>
+              </div>
+            </h1>
+
+            <div className="overflow-hidden pb-4 w-full">
+              <h2 ref={taglineRef} className="text-xl sm:text-2xl md:text-3xl font-heading font-semibold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500 opacity-90 leading-snug">
+                Taste That Hits Different
+              </h2>
+            </div>
+          </div>
+
+          {/* BOTTOM ON MOBILE, RIGHT ON DESKTOP - Desc & Buttons */}
+          <div className="col-span-2 lg:col-span-1 lg:col-start-2 lg:row-start-2 flex flex-col justify-center items-center lg:items-start text-center lg:text-left z-10 mt-2 lg:mt-0">
+            <div className="overflow-hidden w-full flex justify-center lg:justify-start">
+              <p ref={descRef} className="text-gray-300 font-light text-[16px] sm:text-lg lg:text-xl mb-8 lg:mb-10 max-w-xl leading-relaxed">
+                Experience premium street food crafted with passion. Reimagining the classics into a truly unforgettable culinary journey.
+              </p>
+            </div>
+
+            {/* Call-to-Action Buttons */}
+            <div ref={buttonsRef} className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 sm:gap-5 w-full">
+              <a 
+                href="#categories" 
+                className="group relative flex items-center justify-center w-full sm:w-auto min-w-[200px] min-h-[56px] bg-amber-400 rounded-2xl text-black font-extrabold text-lg transition-all duration-500 hover:scale-[1.03] hover:shadow-[0_0_35px_rgba(251,191,36,0.5)] focus:outline-none focus:ring-4 focus:ring-amber-400/50"
+              >
+                <span className="relative z-10">Explore Menu</span>
+                <div className="absolute inset-0 bg-white/20 rounded-2xl scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500"></div>
+              </a>
+              
+              <a 
+                href="#contact" 
+                className="group relative flex items-center justify-center w-full sm:w-auto min-w-[200px] min-h-[56px] bg-transparent border-2 border-white/10 rounded-2xl text-white font-bold text-lg transition-all duration-500 hover:border-amber-400 hover:text-amber-400 hover:scale-[1.03] hover:bg-amber-400/5 hover:shadow-[0_0_35px_rgba(251,191,36,0.15)] focus:outline-none focus:ring-4 focus:ring-amber-400/50"
+              >
+                Contact Us
+              </a>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>

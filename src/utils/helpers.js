@@ -14,3 +14,27 @@ export const MARQUEE_MESSAGES = [
   "Affordable prices guaranteed", "Family friendly atmosphere", "Authentic Tamil Nadu taste",
   "Spicy and tangy flavors", "Cheese lovers paradise"
 ];
+
+// Smart Navigation Helpers
+export const openModalWithHistory = (modalId, urlHash) => {
+  // Use replaceState if repeatedly opening the same type of modal to prevent deep stack issues
+  if (window.history.state && window.history.state.modal === modalId) {
+    window.history.replaceState({ modal: modalId }, '', urlHash);
+  } else {
+    window.history.pushState({ modal: modalId }, '', urlHash);
+  }
+};
+
+export const smartBack = (fallbackAction) => {
+  if (window.history.state && window.history.state.modal) {
+    if (window.history.length > 1) {
+      window.history.back(); // Triggers popstate listener
+    } else {
+      window.history.replaceState(null, '', window.location.pathname);
+      if (fallbackAction) fallbackAction();
+    }
+  } else {
+    // If no meaningful history, just execute the fallback (e.g. close modal)
+    if (fallbackAction) fallbackAction();
+  }
+};

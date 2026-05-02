@@ -46,7 +46,7 @@ export const ContactForm = ({ contactForm, contactSubmitting, handleContactSubmi
   );
 };
 
-export const OrderModal = React.memo(({ isOpen, onClose, onSubmit, formData, errors, isSubmitting }) => {
+export const OrderModal = React.memo(({ isOpen, onClose, onSubmit, formData, errors, isSubmitting, isCooldown, cooldownTimeLeft }) => {
   if (!isOpen) return null;
   return (
     <AnimatePresence>
@@ -142,8 +142,20 @@ export const OrderModal = React.memo(({ isOpen, onClose, onSubmit, formData, err
               {errors.items && <p className="text-red-400 text-xs mt-1 ml-1">{errors.items}</p>}
             </div>
             
-            <button type="submit" disabled={isSubmitting} className="w-full btn-primary min-h-[56px] text-lg font-bold mt-2 disabled:opacity-50 flex items-center justify-center">
-              {isSubmitting ? 'Sending Inquiry...' : 'Submit Inquiry'}
+            <button 
+              type="submit" 
+              disabled={isSubmitting || isCooldown} 
+              className={`w-full min-h-[56px] text-lg font-bold mt-2 flex items-center justify-center rounded-full transition-all ${
+                isCooldown 
+                  ? 'bg-red-500/10 text-red-500 border border-red-500/30 cursor-not-allowed' 
+                  : 'btn-primary disabled:opacity-50'
+              }`}
+            >
+              {isCooldown 
+                ? `Cooldown: ${Math.floor(cooldownTimeLeft/60)}:${(cooldownTimeLeft%60).toString().padStart(2,'0')}` 
+                : isSubmitting 
+                  ? 'Sending Inquiry...' 
+                  : 'Submit Inquiry'}
             </button>
           </form>
         </motion.div>

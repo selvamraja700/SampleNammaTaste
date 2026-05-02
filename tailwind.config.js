@@ -1,0 +1,1 @@
+export default { content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"], theme: { extend: { colors: { primary: "#facc15", secondary: "#0f0f0f", dark: "#111111", card: "#1a1a1a", border: "#2d2d2d" }, fontFamily: { heading: ["Poppins", "sans-serif"], body: ["Inter", "sans-serif"] } } }, plugins: [] } 

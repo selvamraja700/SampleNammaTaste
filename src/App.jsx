@@ -16,7 +16,7 @@ import Testimonials from './components/Testimonials';
 import { ContactForm, OrderModal } from './components/Forms';
 import Footer from './components/Footer';
 
-const ENABLE_LOCK = true;
+const ENABLE_LOCK = import.meta.env.VITE_ENABLE_LOCK === 'true';
 
 function App() {
   const [isUnlocked, setIsUnlocked] = useState(!ENABLE_LOCK || localStorage.getItem('namma_taste_unlocked') === 'true');
@@ -90,9 +90,9 @@ function App() {
 Booking Inquiry details: ${JSON.stringify(orderForm.values, null, 2)}
 `;
 
-      const res = await fetch('https://api.web3forms.com/submit', {
+      const res = await fetch(import.meta.env.VITE_WEB3FORMS_API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
           access_key: WEB3FORMS_ACCESS_KEY, subject: '📅 New Booking Inquiry', ...orderForm.values,
           eventType: finalEventType, message: orderMessage,
@@ -116,9 +116,9 @@ Booking Inquiry details: ${JSON.stringify(orderForm.values, null, 2)}
     if (!contactForm.validate()) return;
     setContactSubmitting(true);
     try {
-      const res = await fetch('https://api.web3forms.com/submit', {
+      const res = await fetch(import.meta.env.VITE_WEB3FORMS_API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({ access_key: WEB3FORMS_ACCESS_KEY, subject: 'Contact', ...contactForm.values }),
       });
       const data = await res.json();

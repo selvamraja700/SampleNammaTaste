@@ -6,7 +6,7 @@ export const getMaxDate = () => {
 };
 
 export const LOGO_URL = "https://ik.imagekit.io/Selvamraj700/NammaTaste/WhatsApp%20Image%202026-04-18%20at%202.50.26%20PM.jpeg";
-export const WEB3FORMS_ACCESS_KEY = 'f15f1eea-9b04-4f0d-a1a0-fbb99559baaa';
+export const WEB3FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
 
 export const MARQUEE_MESSAGES = [
   "Fresh pani puri made daily", "Best momos in the city", "Refreshing mojitos for all",

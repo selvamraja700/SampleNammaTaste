@@ -8,7 +8,7 @@ const AccessPage = ({ onUnlock }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (password === 'johnSon') {
+    if (password === import.meta.env.VITE_ACCESS_PASSWORD) {
       onUnlock();
     } else {
       setError('Incorrect password');
